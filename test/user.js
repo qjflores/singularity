@@ -55,7 +55,7 @@ contract("User", function(accounts){
           return user.services(provider.address);
         })
         .then(function(serviceInfo){
-          assert.equal(serviceInfo[2].c[0], 100000);
+          assert.equal(serviceInfo[2].c[0], 0);
         })
       })
   })
