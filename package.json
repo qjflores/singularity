@@ -1,0 +1,8 @@
+{
+  "name": "singularity",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "truffle-default-builder": "^2.0.0"
+  }
+}
