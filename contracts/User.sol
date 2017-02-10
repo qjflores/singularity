@@ -8,7 +8,7 @@ contract User {
   struct Service{
     bool active;
     uint lastUpdated;
-    uint256 debt;
+    uint debt;
   }
 
   function User(string _name) payable {
@@ -32,22 +32,22 @@ contract User {
       }
   }
 
-  function payToProvider(address _providerAddress) payable {
-    if(_providerAddress.send(services[_providerAddress].debt))
-      throw;
-  }
-
-  function payToProvider1(address _providerAddress) returns (bool) {
-    // using a withdrawl message
-    uint amount = services[_providerAddress].debt;
-    services[_providerAddress].debt = 0;
-    if ( _providerAddress.send(amount)) {
-      return true;
+  function clearDebt() returns (bool result){
+    if (services[msg.sender].active){
+      services[msg.sender].lastUpdated = now;
+      services[msg.sender].debt = 0;
     } else {
-      services[_providerAddress].debt = amount;
-      return false;
+      throw;
     }
   }
 
+
+  function unsubcribe(address _providerAddress){
+    if(services[_providerAddress].debt == 0){
+      services[_providerAddress].active = false;
+    } else {
+      throw;
+    }
+  }
 
 }

@@ -4,8 +4,9 @@ var Provider = artifacts.require("./Provider.sol");
 contract("User", function(accounts){
   var user;
   var provider;
+  var balance = (acct) => {return web3.fromWei(web3.eth.getBalance(acct), 'ether').toNumber() }
   it("init", function(){
-    return User.new("myUserName")
+    return User.new("myUserName", {from:accounts[1]})
       .then(function(userContract){
         if(userContract.address){
           user = userContract;
@@ -32,6 +33,7 @@ contract("User", function(accounts){
         return true;
       })
       .then(function(value){
+        assert.equal(0, web3.toWei(balance(provider.address),"ether"));
         return user.registerToProvider(provider.address);
       })
       .then(function(txHash){
@@ -49,14 +51,17 @@ contract("User", function(accounts){
       })
       .then(function(serviceInfo){
         assert.equal(serviceInfo[2].c[0], 100000);
-        user.payToProvider(provider.address)
-        .then(function(txHash){
-          console.log(txHash);
-          return user.services(provider.address);
-        })
-        .then(function(serviceInfo){
-          assert.equal(serviceInfo[2].c[0], 0);
-        })
+        return provider.recievePayment(user.address,{from:accounts[1], value:serviceInfo[2].c[0]})
+      })
+      .then(function(txHash){
+        return user.services(provider.address);
+      })
+      .then(function(serviceInfo){
+        assert.equal(serviceInfo[2].c[0], 0);
+        return true;
+      })
+      .then(function(value){
+        assert.equal(100000,web3.toWei(balance(provider.address),"ether"));
       })
   })
 })

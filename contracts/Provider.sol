@@ -15,4 +15,10 @@ contract Provider {
     User person = User(_userAddress);
     person.setDebt(_debt);
   }
+
+  function recievePayment(address _userAddress) payable returns (bool result) {
+    User person = User(_userAddress);
+    person.clearDebt();
+    return true;
+  }
 }
