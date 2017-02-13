@@ -2,6 +2,8 @@ var ConvertLib = artifacts.require("./ConvertLib.sol");
 var MetaCoin = artifacts.require("./MetaCoin.sol");
 var User = artifacts.require("./User.sol");
 var Provider = artifacts.require("./Provider.sol");
+var Kitchen = artifacts.require("./Kitchen.sol");
+
 
 module.exports = function(deployer) {
   deployer.deploy(ConvertLib);
@@ -9,4 +11,5 @@ module.exports = function(deployer) {
   deployer.deploy(MetaCoin);
   deployer.deploy(User);
   deployer.deploy(Provider);
+  deployer.deploy(Kitchen);
 };
