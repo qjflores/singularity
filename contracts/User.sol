@@ -26,7 +26,7 @@ contract User {
   function setDebt(uint256 _debt){
     if(services[msg.sender].active){
       services[msg.sender].lastUpdated = now;
-      services[msg.sender].debt = _debt;
+      services[msg.sender].debt += _debt;
       } else {
         throw;
       }
@@ -40,7 +40,6 @@ contract User {
       throw;
     }
   }
-
 
   function unsubcribe(address _providerAddress){
     if(services[_providerAddress].debt == 0){
