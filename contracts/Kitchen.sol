@@ -36,4 +36,8 @@ contract Kitchen is Provider {
   function addItemToUserDebt(address _userAddress, bytes32 _name) {
     setDebt(menu[_name].price, _userAddress);
   }
+
+  function updateItemPrice(bytes32 _name, uint256 _price) {
+    menu[_name].price = _price;
+  }
 }

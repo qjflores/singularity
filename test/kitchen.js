@@ -65,6 +65,10 @@ contract("Kitchen", function(accounts) {
         return true
       })
       .then(function(value){
+        assert.equal(0, web3.toWei(balance(kitchen.address),"ether"));
+        return true
+      })
+      .then(function(value){
         return user.registerToProvider(kitchen.address);
       })
       .then(function(txHash){
@@ -97,6 +101,23 @@ contract("Kitchen", function(accounts) {
       })
       .then(function(serviceInfo){
         assert.equal(0, serviceInfo[2].c[0]);
+        assert.equal(60, web3.toWei(balance(kitchen.address),"ether"));
+      })
+  })
+  it('change-item-price', function(){
+    var item1 = "iddly";
+    var newPrice = web3.toWei(0.002, "ether");
+    return kitchen.menu(item1)
+      .then(function(itemInfo){
+        assert.equal(itemInfo[0], '0x6964646c79000000000000000000000000000000000000000000000000000000');
+        assert.equal(itemInfo[1].c[0], 10);
+        return kitchen.updateItemPrice(item1, newPrice);
+      })
+      .then(function(txHash){
+        return kitchen.menu(item1)
+      })
+      .then(function(itemInfo){
+        assert.equal(itemInfo[1].c[0], 20);
       })
   })
 })
