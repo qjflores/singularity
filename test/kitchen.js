@@ -4,6 +4,7 @@ var User = artifacts.require("./User.sol");
 contract("Kitchen", function(accounts) {
   var kitchen;
   var user;
+  var staff;
   var version = "v0.1.0";
   var _owner = accounts[0];
   var _staff1 = accounts[1];
@@ -19,9 +20,20 @@ contract("Kitchen", function(accounts) {
     })
   })
   it('test-user-to-staff', function() {
-    return kitchen.addStaff(_staff1.toString(), {from:_owner})
+    return User.new("StaffUser", {from:accounts[1]})
+      .then(function(userContract){
+        if (userContract.address) {
+          staff = userContract;
+        } else {
+          throw new Error("no contract address");
+        }
+        return true
+      })
+      .then(function(value){
+        return kitchen.addStaff(staff.address, {from:_owner})
+      })
       .then(function(txHash) {
-        return kitchen.staffList(_staff1);
+        return kitchen.staffList(staff.address);
       })
       .then(function(staffInfo){
         assert.equal(staffInfo[0], true);
@@ -29,23 +41,23 @@ contract("Kitchen", function(accounts) {
   })
   it('add-item-to-menu', function(){
     var _name = "lunch";
-    var _price = web3.toWei(0.1);
+    var _price = web3.toWei(0.5,"ether");
     return kitchen.addItemToMenu(_name, _price, {from:_owner})
       .then(function(txHash){
         return kitchen.menu(_name);
       })
       .then(function(itemInfo){
         assert.equal(itemInfo[0], '0x6c756e6368000000000000000000000000000000000000000000000000000000');
-        assert.equal(itemInfo[1].c[0], 1000);
+        assert.equal(itemInfo[1].toString(), web3.toWei(0.5,"ether"));
       })
   })
   it('add-multiple-items-to-user-debt', function(){
     var _item1 = "iddly";
-    var _price1 = web3.toWei(0.001, "ether");
+    var _price1 = web3.toWei(0.01, "ether");
     var _quantity1 = 2;
     var _item2 = "vada";
     var _quantity2 = 1;
-    var _price2 = web3.toWei(0.005, "ether");
+    var _price2 = web3.toWei(0.02, "ether");
     return kitchen.addItemToMenu(_item1, _price1, {from:_owner})
       .then(function(txHash){
         return kitchen.addItemToMenu(_item1, _price1, {from:_owner})
@@ -76,48 +88,94 @@ contract("Kitchen", function(accounts) {
       })
       .then(function(serviceInfo){
         // assert that the initial debt to the kitchen is 0
-        assert.equal(0, serviceInfo[2].c[0]);
+        assert.equal(0, serviceInfo[2].toString());
         return kitchen.addItemToUserDebt(user.address, _item1)
       })
       .then(function(txHash){
         return user.services(kitchen.address);
       })
       .then(function(serviceInfo){
-        assert.equal(10, serviceInfo[2].c[0]);
+        assert.equal(_price1, serviceInfo[2].toString());
         return kitchen.addItemToUserDebt(user.address, _item2)
       })
       .then(function(txHash){
         return user.services(kitchen.address);
       })
       .then(function(serviceInfo){
-        assert.equal(60,serviceInfo[2].c[0]);
+        assert.equal(30000000000000000, serviceInfo[2].toString());
         return user.services(kitchen.address);
       })
       .then(function(serviceInfo){
-        return kitchen.recievePayment(user.address,{from:accounts[2],value:serviceInfo[2].c[0]})
+        return kitchen.recievePayment(user.address,{from:accounts[2],value:serviceInfo[2].toString()})
       })
       .then(function(txHash){
         return user.services(kitchen.address);
       })
       .then(function(serviceInfo){
-        assert.equal(0, serviceInfo[2].c[0]);
-        assert.equal(60, web3.toWei(balance(kitchen.address),"ether"));
+        assert.equal(0, serviceInfo[2].toString());
+        assert.equal(0.03, balance(kitchen.address));
       })
   })
   it('change-item-price', function(){
     var item1 = "iddly";
-    var newPrice = web3.toWei(0.002, "ether");
+    var newPrice = web3.toWei(0.02, "ether");
     return kitchen.menu(item1)
       .then(function(itemInfo){
         assert.equal(itemInfo[0], '0x6964646c79000000000000000000000000000000000000000000000000000000');
-        assert.equal(itemInfo[1].c[0], 10);
+        assert.equal(itemInfo[1].toString(), 10000000000000000);
         return kitchen.updateItemPrice(item1, newPrice);
       })
       .then(function(txHash){
         return kitchen.menu(item1)
       })
       .then(function(itemInfo){
-        assert.equal(itemInfo[1].c[0], 20);
+        assert.equal(itemInfo[1].toString(), 20000000000000000);
+      })
+  })
+  it('add-job-to-contract', function(){
+    var jobName = "Lead cook";
+    var jobRate = web3.toWei(0.001, "ether");
+    return kitchen.addJob(jobName, jobRate, {from: _owner})
+      .then(function(txHash){
+        return kitchen.jobs(jobName)
+      })
+      .then(function(jobInfo){
+        assert.equal(jobInfo[0], '0x4c65616420636f6f6b0000000000000000000000000000000000000000000000');
+        assert.equal(jobInfo[1].toString(), 1000000000000000);
+      })
+  })
+  it('change-job-rate', function(){
+    var jobName = "Lead cook";
+    var newJobRate = web3.toWei(0.002, "ether");
+    return kitchen.jobs(jobName)
+      .then(function(jobInfo){
+        assert.equal(jobInfo[1].toString(), 1000000000000000);
+        return kitchen.updateJobRate(jobName, newJobRate)
+      })
+      .then(function(txHash){
+        return kitchen.jobs(jobName)
+      })
+      .then(function(jobInfo){
+        assert.equal(jobInfo[1].toString(), 2000000000000000);
+      })
+  })
+  it('pay-out-job', function(){
+    var jobName = "Lead cook";
+    console.log(balance(kitchen.address))
+    // 60
+    return kitchen.jobs(jobName)
+    .then(function(jobInfo){
+      console.log(jobInfo);
+      return kitchen.payOutJob(staff.address, jobName)
+    })
+      .then(function(txHash){
+        return kitchen.staffList(staff.address);
+      })
+      .then(function(staffInfo){
+        console.log(staffInfo);
+        //[ true, { [String: '1487169510'] s: 1, e: 9, c: [ 1487169510 ] },
+        // { [String: '200000000000000'] s: 1, e: 14, c: [ 2 ] } ]
+        assert.equal(balance(staff.address), 2)
       })
   })
 })
