@@ -15,6 +15,9 @@ contract User {
     userName = _name;
   }
 
+  function() payable {
+  }
+
   function registerToProvider(address _providerAddress){
     services[_providerAddress] = Service({
       active:true,

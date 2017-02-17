@@ -4,14 +4,7 @@ import "./Provider.sol";
 
 contract Kitchen is Provider {
 
-  mapping (address => staffUser) public staffList;
   mapping (bytes32 => menuItem) public menu;
-
-  struct staffUser{
-    bool active;
-    uint lastUpdated;
-    uint256 payout;
-  }
 
   struct menuItem{
     bytes32 name;

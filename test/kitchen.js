@@ -10,7 +10,7 @@ contract("Kitchen", function(accounts) {
   var _staff1 = accounts[1];
   var balance = (acct) => {return web3.fromWei(web3.eth.getBalance(acct), 'ether').toNumber() }
   it('init', function() {
-    return Kitchen.new().then(function(kitchenContract) {
+    return Kitchen.new({from:_owner}).then(function(kitchenContract) {
       if(kitchenContract.address){
         kitchen = kitchenContract;
       } else {
@@ -20,7 +20,7 @@ contract("Kitchen", function(accounts) {
     })
   })
   it('test-user-to-staff', function() {
-    return User.new("StaffUser", {from:accounts[1]})
+    return User.new("StaffUser", {from:_staff1})
       .then(function(userContract){
         if (userContract.address) {
           staff = userContract;
@@ -121,6 +121,7 @@ contract("Kitchen", function(accounts) {
     var newPrice = web3.toWei(0.02, "ether");
     return kitchen.menu(item1)
       .then(function(itemInfo){
+        // item struct
         assert.equal(itemInfo[0], '0x6964646c79000000000000000000000000000000000000000000000000000000');
         assert.equal(itemInfo[1].toString(), 10000000000000000);
         return kitchen.updateItemPrice(item1, newPrice);
@@ -149,6 +150,7 @@ contract("Kitchen", function(accounts) {
     var newJobRate = web3.toWei(0.002, "ether");
     return kitchen.jobs(jobName)
       .then(function(jobInfo){
+        // job rate stored in a struct
         assert.equal(jobInfo[1].toString(), 1000000000000000);
         return kitchen.updateJobRate(jobName, newJobRate)
       })
@@ -161,21 +163,27 @@ contract("Kitchen", function(accounts) {
   })
   it('pay-out-job', function(){
     var jobName = "Lead cook";
-    console.log(balance(kitchen.address))
-    // 60
+    assert.equal(balance(kitchen.address), 0.03);
     return kitchen.jobs(jobName)
-    .then(function(jobInfo){
-      console.log(jobInfo);
-      return kitchen.payOutJob(staff.address, jobName)
-    })
+      .then(function(jobInfo){
+        return kitchen.payOutJob(staff.address, jobName)
+      })
       .then(function(txHash){
         return kitchen.staffList(staff.address);
       })
       .then(function(staffInfo){
-        console.log(staffInfo);
-        //[ true, { [String: '1487169510'] s: 1, e: 9, c: [ 1487169510 ] },
-        // { [String: '200000000000000'] s: 1, e: 14, c: [ 2 ] } ]
-        assert.equal(balance(staff.address), 2)
+        //this is the payout stored in a struct
+        assert.equal(staffInfo[2].toString(), 2000000000000000);
+        return kitchen.collectPayout(staff.address)
+      .then(function(txHash){
+        return kitchen.staffList(staff.address);
       })
+      .then(function(staffInfo){
+        assert.equal(balance(kitchen.address), 0.028);
+        assert.equal(staffInfo[2].toString(), 0);
+        assert.equal(balance(staff.address), web3.fromWei(2000000000000000, "ether"));
+        assert.equal(balance(kitchen.address), web3.fromWei(28000000000000000, "ether"));
+      })
+    })
   })
 })
