@@ -3,7 +3,8 @@ var MetaCoin = artifacts.require("./MetaCoin.sol");
 var User = artifacts.require("./User.sol");
 var Provider = artifacts.require("./Provider.sol");
 var Kitchen = artifacts.require("./Kitchen.sol");
-
+var Teacher = artifacts.require("./Teacher.sol");
+var Course = artifacts.require("./Course.sol");
 
 module.exports = function(deployer) {
   deployer.deploy(ConvertLib);
@@ -12,4 +13,6 @@ module.exports = function(deployer) {
   deployer.deploy(User);
   deployer.deploy(Provider);
   deployer.deploy(Kitchen);
+  deployer.deploy(Teacher);
+  deployer.deploy(Course);
 };
