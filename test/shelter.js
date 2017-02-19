@@ -22,18 +22,18 @@ contract("Shelter", function(accounts) {
     var shelterMonthlyRate = web3.toWei(0.028,"ether");
     var shelterQuarterlyRate = web3.toWei(0.084, "ether");
 
-    return shelter.addShelter(shelterName, shelterDailyRate, 
+    return shelter.addRentable(shelterName, shelterDailyRate, 
       shelterWeeklyRate, shelterMonthlyRate, shelterQuarterlyRate)
       .then(function(txHash){
-        return shelter.shelters(shelterName)
+        return shelter.rentables(shelterName)
       })
-      .then(function(shelterInfo){
-        assert.equal(shelterInfo[0],true);
-        assert.equal(shelterInfo[1].toString(),"0x4a616167612054656e7420323700000000000000000000000000000000000000");
-        assert.equal(shelterInfo[2].toString(),shelterDailyRate);
-        assert.equal(shelterInfo[3].toString(),shelterWeeklyRate);
-        assert.equal(shelterInfo[4].toString(),shelterMonthlyRate);
-        assert.equal(shelterInfo[5].toString(),shelterQuarterlyRate);
+      .then(function(rentableInfo){
+        assert.equal(rentableInfo[0],true);
+        assert.equal(rentableInfo[1].toString(),"0x4a616167612054656e7420323700000000000000000000000000000000000000");
+        assert.equal(rentableInfo[2].toString(),shelterDailyRate);
+        assert.equal(rentableInfo[3].toString(),shelterWeeklyRate);
+        assert.equal(rentableInfo[4].toString(),shelterMonthlyRate);
+        assert.equal(rentableInfo[5].toString(),shelterQuarterlyRate);
       })
 
   })
@@ -47,42 +47,42 @@ contract("Shelter", function(accounts) {
     var newShelterWeeklyRate = web3.toWei(0.014,"ether");
     var newShelterMonthlyRate = web3.toWei(0.056,"ether");
     var newShelterQuarterlyRate = web3.toWei(0.112, "ether");
-    return shelter.shelters(shelterName)
-      .then(function(shelterInfo){
-        assert.equal(shelterInfo[0],true);
-        assert.equal(shelterInfo[1].toString(),"0x4a616167612054656e7420323700000000000000000000000000000000000000");
-        assert.equal(shelterInfo[2].toString(),shelterDailyRate);
-        assert.equal(shelterInfo[3].toString(),shelterWeeklyRate);
-        assert.equal(shelterInfo[4].toString(),shelterMonthlyRate);
-        assert.equal(shelterInfo[5].toString(),shelterQuarterlyRate);
+    return shelter.rentables(shelterName)
+      .then(function(rentableInfo){
+        assert.equal(rentableInfo[0],true);
+        assert.equal(rentableInfo[1].toString(),"0x4a616167612054656e7420323700000000000000000000000000000000000000");
+        assert.equal(rentableInfo[2].toString(),shelterDailyRate);
+        assert.equal(rentableInfo[3].toString(),shelterWeeklyRate);
+        assert.equal(rentableInfo[4].toString(),shelterMonthlyRate);
+        assert.equal(rentableInfo[5].toString(),shelterQuarterlyRate);
         return shelter.changeDailyRate(shelterName, newShelterDailyRate)
       })
       .then(function(txHash){
-        return shelter.shelters(shelterName)
+        return shelter.rentables(shelterName)
       })
-      .then(function(shelterInfo){
-        assert.equal(shelterInfo[2].toString(),newShelterDailyRate);
+      .then(function(rentableInfo){
+        assert.equal(rentableInfo[2].toString(),newShelterDailyRate);
         return shelter.changeWeeklyRate(shelterName, newShelterWeeklyRate)
       })
       .then(function(txHash){
-        return shelter.shelters(shelterName)
+        return shelter.rentables(shelterName)
       })
-      .then(function(shelterInfo){
-        assert.equal(shelterInfo[3].toString(),newShelterWeeklyRate);
+      .then(function(rentableInfo){
+        assert.equal(rentableInfo[3].toString(),newShelterWeeklyRate);
         return shelter.changeMonthlyRate(shelterName, newShelterMonthlyRate) 
       })
       .then(function(txHash){
-        return shelter.shelters(shelterName)
+        return shelter.rentables(shelterName)
       })
-      .then(function(shelterInfo){
-        assert.equal(shelterInfo[4].toString(),newShelterMonthlyRate);
+      .then(function(rentableInfo){
+        assert.equal(rentableInfo[4].toString(),newShelterMonthlyRate);
         return shelter.changeQuarterlyRate(shelterName, newShelterQuarterlyRate) 
       })
       .then(function(txHash){
-        return shelter.shelters(shelterName)
+        return shelter.rentables(shelterName)
       })
-      .then(function(shelterInfo){
-        assert.equal(shelterInfo[5].toString(),newShelterQuarterlyRate);
+      .then(function(rentableInfo){
+        assert.equal(rentableInfo[5].toString(),newShelterQuarterlyRate);
       })
 
   })
@@ -106,13 +106,13 @@ contract("Shelter", function(accounts) {
       })
       .then(function(serviceInfo){
         assert.equal(serviceInfo[2].toString(), 0)
-        return shelter.rentShelter(shelterName ,user.address)
+        return shelter.rentRentable(shelterName ,user.address)
       })
       .then(function(txHash){
-        return shelter.shelters(shelterName)
+        return shelter.rentables(shelterName)
       })
-      .then(function(shelterInfo){
-        assert.equal(shelterInfo[6],user.address)
+      .then(function(rentableInfo){
+        assert.equal(rentableInfo[6],user.address)
       })
   })
   it('charge-user-for-shelter', function(){
