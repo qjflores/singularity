@@ -8,6 +8,8 @@ var Teacher = artifacts.require("./Teacher.sol");
 var Course = artifacts.require("./Course.sol");
 var Bank = artifacts.require("./Bank.sol");
 var Shelter = artifacts.require("./Shelter.sol");
+var Water = artifacts.require("./Water.sol");
+var Internet = artifacts.require("./Internet.sol");
 
 module.exports = function(deployer) {
   deployer.deploy(ConvertLib);
@@ -21,4 +23,6 @@ module.exports = function(deployer) {
   deployer.deploy(Course);
   deployer.deploy(Bank);
   deployer.deploy(Shelter);
+  deployer.deploy(Water);
+  deployer.deploy(Internet);
 };
