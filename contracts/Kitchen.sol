@@ -11,7 +11,7 @@ contract Kitchen is Provider {
     uint256 price;
   }
 
-  function Kitchen() Provider("SingularityKitchen", "SingularityKitchen contract"){
+  function Kitchen() Provider("SingularityKitchen", "SingularityKitchen contract") {
   }
 
   function addStaff(address _userAddress) {
