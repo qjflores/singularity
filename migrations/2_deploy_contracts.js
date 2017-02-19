@@ -10,6 +10,7 @@ var Bank = artifacts.require("./Bank.sol");
 var Shelter = artifacts.require("./Shelter.sol");
 var Water = artifacts.require("./Water.sol");
 var Internet = artifacts.require("./Internet.sol");
+var Electricity = artifacts.require("./Electricity.sol");
 
 module.exports = function(deployer) {
   deployer.deploy(ConvertLib);
@@ -25,4 +26,5 @@ module.exports = function(deployer) {
   deployer.deploy(Shelter);
   deployer.deploy(Water);
   deployer.deploy(Internet);
+  deployer.deploy(Electricity);
 };
