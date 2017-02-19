@@ -6,6 +6,7 @@ var Kitchen = artifacts.require("./Kitchen.sol");
 var Teacher = artifacts.require("./Teacher.sol");
 var Course = artifacts.require("./Course.sol");
 var Bank = artifacts.require("./Bank.sol");
+var Shelter = artifacts.require("./Shelter.sol");
 
 module.exports = function(deployer) {
   deployer.deploy(ConvertLib);
@@ -17,4 +18,5 @@ module.exports = function(deployer) {
   deployer.deploy(Teacher);
   deployer.deploy(Course);
   deployer.deploy(Bank);
+  deployer.deploy(Shelter);
 };
